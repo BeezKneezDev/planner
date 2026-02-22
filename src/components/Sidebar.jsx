@@ -46,7 +46,7 @@ export default function Sidebar() {
       <aside className={`
         fixed top-0 left-0 z-50 h-full w-60 bg-white shadow-md flex flex-col transition-transform duration-200
         ${open ? 'translate-x-0' : '-translate-x-full'}
-        md:static md:translate-x-0 md:min-h-screen
+        md:translate-x-0 md:h-screen md:overflow-y-auto
       `}>
         <div className="p-5 border-b border-gray-100">
           <h1 className="text-xl font-bold text-primary-600">Financial Planner</h1>
