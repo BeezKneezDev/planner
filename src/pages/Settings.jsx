@@ -12,7 +12,6 @@ const DEMO_DATA = {
     { id: 'd-inc-2', name: 'Salary', person: 'partner', amount: '4200', frequency: 'monthly', startDate: '2024-03', endDate: '' },
   ],
   bills: [
-    { id: 'd-bill-1', name: 'Mortgage Payment', amount: '2400', frequency: 'monthly', category: 'housing' },
     { id: 'd-bill-2', name: 'Rates', amount: '650', frequency: 'quarterly', category: 'housing' },
     { id: 'd-bill-3', name: 'Home Insurance', amount: '180', frequency: 'monthly', category: 'housing' },
     { id: 'd-bill-4', name: 'Power & Gas', amount: '220', frequency: 'monthly', category: 'utilities' },
