@@ -8,8 +8,8 @@ const DEMO_DATA = {
   settings: { minSurplusPercent: 5 },
   costOfLiving: { comparisons: [] },
   income: [
-    { id: 'd-inc-1', name: 'Salary', person: 'Partner A', amount: '5800', frequency: 'monthly', startDate: '2024-01', endDate: '' },
-    { id: 'd-inc-2', name: 'Salary', person: 'Partner B', amount: '4200', frequency: 'monthly', startDate: '2024-03', endDate: '' },
+    { id: 'd-inc-1', name: 'Salary', person: 'me', amount: '5800', frequency: 'monthly', startDate: '2024-01', endDate: '' },
+    { id: 'd-inc-2', name: 'Salary', person: 'partner', amount: '4200', frequency: 'monthly', startDate: '2024-03', endDate: '' },
   ],
   bills: [
     { id: 'd-bill-1', name: 'Mortgage Payment', amount: '2400', frequency: 'monthly', category: 'housing' },
