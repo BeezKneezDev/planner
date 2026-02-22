@@ -1,16 +1,30 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faChartPie,
+  faWallet,
+  faFileInvoiceDollar,
+  faBuilding,
+  faCreditCard,
+  faBullseye,
+  faGlobe,
+  faFlask,
+  faGear,
+  faBars,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: '📊' },
-  { to: '/income', label: 'Income', icon: '💰' },
-  { to: '/bills', label: 'Bills & Expenses', icon: '📝' },
-  { to: '/assets', label: 'Assets', icon: '🏠' },
-  { to: '/liabilities', label: 'Liabilities', icon: '💳' },
-  { to: '/goals', label: 'Goals', icon: '🎯' },
-  { to: '/cost-of-living', label: 'Cost of Living', icon: '🌏' },
-  { to: '/scenarios', label: 'Scenarios', icon: '🔮' },
-  { to: '/settings', label: 'Settings', icon: '⚙️' },
+  { to: '/', label: 'Dashboard', icon: faChartPie },
+  { to: '/income', label: 'Income', icon: faWallet },
+  { to: '/bills', label: 'Bills & Expenses', icon: faFileInvoiceDollar },
+  { to: '/assets', label: 'Assets', icon: faBuilding },
+  { to: '/liabilities', label: 'Liabilities', icon: faCreditCard },
+  { to: '/goals', label: 'Goals', icon: faBullseye },
+  { to: '/cost-of-living', label: 'Cost of Living', icon: faGlobe },
+  { to: '/scenarios', label: 'Scenarios', icon: faFlask },
+  { to: '/settings', label: 'Settings', icon: faGear },
 ]
 
 export default function Sidebar() {
@@ -27,12 +41,7 @@ export default function Sidebar() {
       {/* Mobile header bar */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm flex items-center px-4 py-3 md:hidden">
         <button onClick={() => setOpen(!open)} className="text-gray-600 mr-3">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {open
-              ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            }
-          </svg>
+          <FontAwesomeIcon icon={open ? faXmark : faBars} className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold text-primary-600">Financial Planner</h1>
       </div>
@@ -65,7 +74,7 @@ export default function Sidebar() {
                 }`
               }
             >
-              <span>{link.icon}</span>
+              <FontAwesomeIcon icon={link.icon} className="w-4 h-4" fixedWidth />
               <span>{link.label}</span>
             </NavLink>
           ))}
