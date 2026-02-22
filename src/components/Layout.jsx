@@ -1,7 +1,15 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import ProfilePicker from './ProfilePicker'
+import { useStore } from '../store/useStore'
 
 export default function Layout() {
+  const { profile } = useStore()
+
+  if (!profile) {
+    return <ProfilePicker />
+  }
+
   return (
     <div className="min-h-screen">
       <Sidebar />

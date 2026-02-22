@@ -13,12 +13,17 @@ import {
   faGear,
   faBars,
   faXmark,
+  faUser,
+  faArrowRightArrowLeft,
+  faReceipt,
 } from '@fortawesome/free-solid-svg-icons'
+import { useStore } from '../store/useStore'
 
 const links = [
   { to: '/', label: 'Dashboard', icon: faChartPie },
   { to: '/income', label: 'Income', icon: faWallet },
   { to: '/bills', label: 'Bills & Expenses', icon: faFileInvoiceDollar },
+  { to: '/transactions', label: 'Transactions', icon: faReceipt },
   { to: '/assets', label: 'Assets', icon: faBuilding },
   { to: '/liabilities', label: 'Liabilities', icon: faCreditCard },
   { to: '/goals', label: 'Goals', icon: faBullseye },
@@ -27,9 +32,16 @@ const links = [
   { to: '/settings', label: 'Settings', icon: faGear },
 ]
 
+const profileLabels = { a: 'User A', b: 'User B' }
+
 export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const { profile, setProfile } = useStore()
+
+  const switchProfile = () => {
+    setProfile(profile === 'a' ? 'b' : 'a')
+  }
 
   // Close sidebar on navigation (mobile)
   useEffect(() => {
@@ -79,6 +91,20 @@ export default function Sidebar() {
             </NavLink>
           ))}
         </nav>
+        <div className="border-t border-gray-100 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />
+            <span className="font-medium">{profileLabels[profile]}</span>
+          </div>
+          <button
+            onClick={switchProfile}
+            className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 cursor-pointer"
+            title={`Switch to ${profileLabels[profile === 'a' ? 'b' : 'a']}`}
+          >
+            <FontAwesomeIcon icon={faArrowRightArrowLeft} className="w-3 h-3" />
+            <span>Switch</span>
+          </button>
+        </div>
       </aside>
     </>
   )

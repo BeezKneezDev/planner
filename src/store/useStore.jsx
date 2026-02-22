@@ -1,8 +1,13 @@
-import { createContext, useContext, useReducer, useEffect } from 'react'
+import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react'
 
 const StoreContext = createContext()
 
-const STORAGE_KEY = 'planner-app-data'
+const PROFILE_KEY = 'planner-active-profile'
+const OLD_STORAGE_KEY = 'planner-app-data'
+
+function storageKey(profile) {
+  return `planner-app-data-${profile}`
+}
 
 const defaultState = {
   income: [],
@@ -10,6 +15,8 @@ const defaultState = {
   assets: [],
   liabilities: [],
   goals: [],
+  transactions: [],
+  categoryRules: [],
   homeName: 'Rotorua',
   costOfLiving: {
     comparisons: [],
@@ -37,27 +44,33 @@ function migrateComparisonCosts(loc) {
 
 function migrateCostOfLiving(col) {
   if (!col) return defaultState.costOfLiving
-  // Already new format
   if (col.comparisons) {
     return { comparisons: col.comparisons.map(migrateComparisonCosts) }
   }
-  // Old format with locations array — skip the first (home) location, migrate the rest as comparisons
   if (col.locations && col.locations.length > 1) {
     return { comparisons: col.locations.slice(1).map(migrateComparisonCosts) }
   }
   return defaultState.costOfLiving
 }
 
-function loadState() {
+// Migrate old single-key data to profile A on first run
+function migrateOldData() {
+  const old = localStorage.getItem(OLD_STORAGE_KEY)
+  if (old) {
+    localStorage.setItem(storageKey('a'), old)
+    localStorage.removeItem(OLD_STORAGE_KEY)
+  }
+}
+
+function loadState(profile) {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = localStorage.getItem(storageKey(profile))
     if (saved) {
       const parsed = JSON.parse(saved)
       const state = { ...defaultState, ...parsed }
       state.costOfLiving = migrateCostOfLiving(parsed.costOfLiving)
       if (!state.homeName) state.homeName = defaultState.homeName
       if (!state.settings) state.settings = defaultState.settings
-      // Migrate liabilities: add paymentFrequency if missing
       if (state.liabilities) {
         state.liabilities = state.liabilities.map((l) =>
           l.paymentFrequency ? l : { ...l, paymentFrequency: 'monthly' }
@@ -93,22 +106,41 @@ function reducer(state, action) {
       return { ...state, settings: { ...state.settings, [action.key]: action.value } }
     case 'SET_HOME_NAME':
       return { ...state, homeName: action.value }
+    case 'SET_TRANSACTIONS':
+      return { ...state, transactions: action.transactions }
+    case 'SET_CATEGORY_RULES':
+      return { ...state, categoryRules: action.rules }
     case 'IMPORT_DATA':
       return { ...defaultState, ...action.data }
+    case 'LOAD_PROFILE':
+      return action.state
     default:
       return state
   }
 }
 
-export function StoreProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, null, loadState)
+// Run migration once on module load
+migrateOldData()
 
+export function StoreProvider({ children }) {
+  const [profile, setProfileState] = useState(() => localStorage.getItem(PROFILE_KEY) || null)
+  const [state, dispatch] = useReducer(reducer, profile, (p) => p ? loadState(p) : defaultState)
+
+  // Save state to profile-specific key
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
+    if (profile) {
+      localStorage.setItem(storageKey(profile), JSON.stringify(state))
+    }
+  }, [state, profile])
+
+  const setProfile = useCallback((newProfile) => {
+    localStorage.setItem(PROFILE_KEY, newProfile)
+    setProfileState(newProfile)
+    dispatch({ type: 'LOAD_PROFILE', state: loadState(newProfile) })
+  }, [])
 
   return (
-    <StoreContext.Provider value={{ state, dispatch }}>
+    <StoreContext.Provider value={{ state, dispatch, profile, setProfile }}>
       {children}
     </StoreContext.Provider>
   )

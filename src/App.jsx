@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Income from './pages/Income'
 import Bills from './pages/Bills'
+import Transactions from './pages/Transactions'
 import Assets from './pages/Assets'
 import Liabilities from './pages/Liabilities'
 import Goals from './pages/Goals'
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/income" element={<Income />} />
             <Route path="/bills" element={<Bills />} />
+            <Route path="/transactions" element={<Transactions />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/liabilities" element={<Liabilities />} />
             <Route path="/goals" element={<Goals />} />

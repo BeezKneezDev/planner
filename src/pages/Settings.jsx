@@ -51,6 +51,7 @@ export default function Settings() {
   const { state, dispatch } = useStore()
   const settings = state.settings || {}
   const [showDemoConfirm, setShowDemoConfirm] = useState(false)
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const set = (key, value) => dispatch({ type: 'SET_SETTING', key, value })
 
@@ -171,6 +172,40 @@ export default function Settings() {
               />
             </label>
           </div>
+        </div>
+
+        <hr className="border-gray-100" />
+
+        <div>
+          <h3 className="font-semibold text-gray-700 mb-1">Reset Data</h3>
+          <p className="text-xs text-gray-400 mb-3">Permanently erase all data for this profile and start fresh</p>
+          {!showResetConfirm ? (
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
+            >
+              Reset All Data
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-red-600">This will delete everything. Are you sure?</span>
+              <button
+                onClick={() => {
+                  dispatch({ type: 'IMPORT_DATA', data: {} })
+                  setShowResetConfirm(false)
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
+              >
+                Yes, reset
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
 
         <hr className="border-gray-100" />
