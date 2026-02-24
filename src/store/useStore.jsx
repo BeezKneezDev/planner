@@ -1,13 +1,8 @@
-import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useReducer, useEffect, useState, useRef, useCallback } from 'react'
+import { useAuth } from './useAuth'
+import { loadUserData, saveProfileData, saveTransactions } from './firestoreSync'
 
 const StoreContext = createContext()
-
-const PROFILE_KEY = 'planner-active-profile'
-const OLD_STORAGE_KEY = 'planner-app-data'
-
-function storageKey(profile) {
-  return `planner-app-data-${profile}`
-}
 
 const defaultState = {
   income: [],
@@ -53,35 +48,17 @@ function migrateCostOfLiving(col) {
   return defaultState.costOfLiving
 }
 
-// Migrate old single-key data to profile A on first run
-function migrateOldData() {
-  const old = localStorage.getItem(OLD_STORAGE_KEY)
-  if (old) {
-    localStorage.setItem(storageKey('a'), old)
-    localStorage.removeItem(OLD_STORAGE_KEY)
+function migrateState(raw) {
+  const state = { ...defaultState, ...raw }
+  state.costOfLiving = migrateCostOfLiving(raw.costOfLiving)
+  if (!state.homeName) state.homeName = defaultState.homeName
+  if (!state.settings) state.settings = defaultState.settings
+  if (state.liabilities) {
+    state.liabilities = state.liabilities.map((l) =>
+      l.paymentFrequency ? l : { ...l, paymentFrequency: 'monthly' }
+    )
   }
-}
-
-function loadState(profile) {
-  try {
-    const saved = localStorage.getItem(storageKey(profile))
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      const state = { ...defaultState, ...parsed }
-      state.costOfLiving = migrateCostOfLiving(parsed.costOfLiving)
-      if (!state.homeName) state.homeName = defaultState.homeName
-      if (!state.settings) state.settings = defaultState.settings
-      if (state.liabilities) {
-        state.liabilities = state.liabilities.map((l) =>
-          l.paymentFrequency ? l : { ...l, paymentFrequency: 'monthly' }
-        )
-      }
-      return state
-    }
-  } catch (e) {
-    console.error('Failed to load state:', e)
-  }
-  return defaultState
+  return state
 }
 
 function reducer(state, action) {
@@ -112,35 +89,80 @@ function reducer(state, action) {
       return { ...state, categoryRules: action.rules }
     case 'IMPORT_DATA':
       return { ...defaultState, ...action.data }
-    case 'LOAD_PROFILE':
+    case 'LOAD_DATA':
       return action.state
     default:
       return state
   }
 }
 
-// Run migration once on module load
-migrateOldData()
-
 export function StoreProvider({ children }) {
-  const [profile, setProfileState] = useState(() => localStorage.getItem(PROFILE_KEY) || null)
-  const [state, dispatch] = useReducer(reducer, profile, (p) => p ? loadState(p) : defaultState)
+  const { user } = useAuth()
+  const [state, dispatch] = useReducer(reducer, defaultState)
+  const [dataLoading, setDataLoading] = useState(true)
+  const saveTimer = useRef(null)
+  const prevUid = useRef(null)
+  const isLoaded = useRef(false)
 
-  // Save state to profile-specific key
+  // Load data from Firestore when user changes
   useEffect(() => {
-    if (profile) {
-      localStorage.setItem(storageKey(profile), JSON.stringify(state))
-    }
-  }, [state, profile])
+    let cancelled = false
 
-  const setProfile = useCallback((newProfile) => {
-    localStorage.setItem(PROFILE_KEY, newProfile)
-    setProfileState(newProfile)
-    dispatch({ type: 'LOAD_PROFILE', state: loadState(newProfile) })
+    async function load() {
+      if (!user) {
+        prevUid.current = null
+        isLoaded.current = false
+        dispatch({ type: 'LOAD_DATA', state: defaultState })
+        setDataLoading(false)
+        return
+      }
+
+      if (user.uid === prevUid.current) return
+      prevUid.current = user.uid
+      isLoaded.current = false
+      setDataLoading(true)
+
+      try {
+        const raw = await loadUserData(user.uid)
+        if (cancelled) return
+        const migrated = migrateState(raw)
+        dispatch({ type: 'LOAD_DATA', state: migrated })
+        isLoaded.current = true
+      } catch (err) {
+        console.error('Failed to load data from Firestore:', err)
+        isLoaded.current = true
+      } finally {
+        if (!cancelled) setDataLoading(false)
+      }
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [user])
+
+  // Debounced save to Firestore
+  const debouncedSave = useCallback((currentState, uid) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      saveProfileData(uid, currentState).catch((err) =>
+        console.error('Failed to save profile data:', err)
+      )
+      saveTransactions(uid, currentState.transactions).catch((err) =>
+        console.error('Failed to save transactions:', err)
+      )
+    }, 500)
   }, [])
 
+  useEffect(() => {
+    if (!user || !isLoaded.current) return
+    debouncedSave(state, user.uid)
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current)
+    }
+  }, [state, user, debouncedSave])
+
   return (
-    <StoreContext.Provider value={{ state, dispatch, profile, setProfile }}>
+    <StoreContext.Provider value={{ state, dispatch, dataLoading }}>
       {children}
     </StoreContext.Provider>
   )

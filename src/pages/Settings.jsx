@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../store/useStore'
 import { CITY_PRESETS } from '../utils/cityPresets'
-import { generateId } from '../utils/formatters'
 
 const DEMO_DATA = {
   homeName: 'Rotorua',
@@ -178,7 +177,7 @@ export default function Settings() {
 
         <div>
           <h3 className="font-semibold text-gray-700 mb-1">Reset Data</h3>
-          <p className="text-xs text-gray-400 mb-3">Permanently erase all data for this profile and start fresh</p>
+          <p className="text-xs text-gray-400 mb-3">Permanently erase all your data and start fresh</p>
           {!showResetConfirm ? (
             <button
               onClick={() => setShowResetConfirm(true)}

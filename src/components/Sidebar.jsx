@@ -14,10 +14,10 @@ import {
   faBars,
   faXmark,
   faUser,
-  faArrowRightArrowLeft,
+  faRightFromBracket,
   faReceipt,
 } from '@fortawesome/free-solid-svg-icons'
-import { useStore } from '../store/useStore'
+import { useAuth } from '../store/useAuth'
 
 const links = [
   { to: '/', label: 'Dashboard', icon: faChartPie },
@@ -32,16 +32,10 @@ const links = [
   { to: '/settings', label: 'Settings', icon: faGear },
 ]
 
-const profileLabels = { a: 'User A', b: 'User B' }
-
 export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
-  const { profile, setProfile } = useStore()
-
-  const switchProfile = () => {
-    setProfile(profile === 'a' ? 'b' : 'a')
-  }
+  const { user, logout } = useAuth()
 
   // Close sidebar on navigation (mobile)
   useEffect(() => {
@@ -92,17 +86,17 @@ export default function Sidebar() {
           ))}
         </nav>
         <div className="border-t border-gray-100 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />
-            <span className="font-medium">{profileLabels[profile]}</span>
+          <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
+            <FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5 shrink-0" />
+            <span className="font-medium truncate">{user?.email}</span>
           </div>
           <button
-            onClick={switchProfile}
-            className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 cursor-pointer"
-            title={`Switch to ${profileLabels[profile === 'a' ? 'b' : 'a']}`}
+            onClick={logout}
+            className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 cursor-pointer shrink-0 ml-2"
+            title="Sign out"
           >
-            <FontAwesomeIcon icon={faArrowRightArrowLeft} className="w-3 h-3" />
-            <span>Switch</span>
+            <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3" />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
