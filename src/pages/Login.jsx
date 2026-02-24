@@ -1,20 +1,33 @@
-import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../store/useAuth'
 
 export default function Login() {
   const { user, login, resetPassword, resendVerification } = useAuth()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const demoTriggered = useRef(false)
   const [showForgot, setShowForgot] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
   const [showResend, setShowResend] = useState(false)
   const [resendDone, setResendDone] = useState(false)
 
-  if (user) return <Navigate to="/" replace />
+  // Auto-trigger demo login from landing page
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && !demoTriggered.current) {
+      demoTriggered.current = true
+      setLoading(true)
+      login('demo@financialplanner.co.nz', 'demo1234')
+        .catch((err) => setError('Demo account unavailable. ' + err.message))
+        .finally(() => setLoading(false))
+    }
+  }, [searchParams, login])
+
+  if (user) return <Navigate to="/dashboard" replace />
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -72,9 +85,19 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen bg-gray-50">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <Link to="/" className="text-lg font-bold text-primary-600">Financial Planner</Link>
+          <div className="flex items-center gap-3">
+            <Link to="/signup" className="text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 px-4 py-1.5 rounded-lg">
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </header>
+      <div className="flex items-center justify-center px-4" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-primary-600 text-center mb-1">Financial Planner</h1>
         <p className="text-gray-500 text-center mb-8 text-sm">Sign in to your account</p>
 
         {showForgot ? (
@@ -195,6 +218,7 @@ export default function Login() {
             </div>
           </form>
         )}
+      </div>
       </div>
     </div>
   )

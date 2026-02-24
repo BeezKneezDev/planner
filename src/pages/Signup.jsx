@@ -11,7 +11,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  if (user) return <Navigate to="/" replace />
+  if (user) return <Navigate to="/dashboard" replace />
 
   const handleSignup = async (e) => {
     e.preventDefault()
@@ -43,30 +43,47 @@ export default function Signup() {
     }
   }
 
+  const headerBar = (
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <Link to="/" className="text-lg font-bold text-primary-600">Financial Planner</Link>
+        <div className="flex items-center gap-3">
+          <Link to="/login" className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5">
+            Sign In
+          </Link>
+        </div>
+      </div>
+    </header>
+  )
+
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-6 text-center">
-          <h1 className="text-2xl font-bold text-primary-600 mb-4">Check Your Email</h1>
-          <p className="text-sm text-gray-600 mb-6">
-            We've sent a verification link to <span className="font-medium">{email}</span>.
-            Please verify your email, then sign in.
-          </p>
-          <Link
-            to="/login"
-            className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-primary-700"
-          >
-            Go to Sign In
-          </Link>
+      <div className="min-h-screen bg-gray-50">
+        {headerBar}
+        <div className="flex items-center justify-center px-4" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
+          <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-6 text-center">
+            <h1 className="text-2xl font-bold text-primary-600 mb-4">Check Your Email</h1>
+            <p className="text-sm text-gray-600 mb-6">
+              We've sent a verification link to <span className="font-medium">{email}</span>.
+              Please verify your email, then sign in.
+            </p>
+            <Link
+              to="/login"
+              className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-primary-700"
+            >
+              Go to Sign In
+            </Link>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen bg-gray-50">
+      {headerBar}
+      <div className="flex items-center justify-center px-4" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-primary-600 text-center mb-1">Financial Planner</h1>
         <p className="text-gray-500 text-center mb-8 text-sm">Create your account</p>
 
         <form onSubmit={handleSignup} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
@@ -113,6 +130,7 @@ export default function Signup() {
             <Link to="/login" className="text-primary-600 hover:text-primary-700">Sign in</Link>
           </p>
         </form>
+      </div>
       </div>
     </div>
   )

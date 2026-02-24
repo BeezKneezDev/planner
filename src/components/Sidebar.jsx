@@ -16,11 +16,12 @@ import {
   faUser,
   faRightFromBracket,
   faReceipt,
+  faComments,
 } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from '../store/useAuth'
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: faChartPie },
+  { to: '/dashboard', label: 'Dashboard', icon: faChartPie },
   { to: '/income', label: 'Income', icon: faWallet },
   { to: '/bills', label: 'Bills & Expenses', icon: faFileInvoiceDollar },
   { to: '/transactions', label: 'Transactions', icon: faReceipt },
@@ -30,6 +31,7 @@ const links = [
   { to: '/cost-of-living', label: 'Cost of Living', icon: faGlobe },
   { to: '/scenarios', label: 'Scenarios', icon: faFlask },
   { to: '/settings', label: 'Settings', icon: faGear },
+  { to: '/submit', label: 'Submit', icon: faComments },
 ]
 
 export default function Sidebar() {
