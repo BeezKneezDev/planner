@@ -173,6 +173,26 @@ export default function Login() {
                 Create account
               </Link>
             </div>
+            <div className="border-t border-gray-100 pt-4">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => {
+                  setEmail('demo@financialplanner.co.nz')
+                  setPassword('demo1234')
+                  setError('')
+                  setShowResend(false)
+                  setLoading(true)
+                  login('demo@financialplanner.co.nz', 'demo1234')
+                    .catch((err) => setError('Demo account unavailable. ' + err.message))
+                    .finally(() => setLoading(false))
+                }}
+                className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+              >
+                {loading ? 'Loading...' : 'Try Demo Account'}
+              </button>
+              <p className="text-xs text-gray-400 text-center mt-2">Explore the app without signing up</p>
+            </div>
           </form>
         )}
       </div>
