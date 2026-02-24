@@ -10,6 +10,7 @@ import {
 import { auth } from '../firebase'
 
 const AuthContext = createContext()
+const DEMO_EMAIL = 'demo@financialplanner.co.nz'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -17,7 +18,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser && firebaseUser.emailVerified) {
+      if (firebaseUser && (firebaseUser.emailVerified || firebaseUser.email === DEMO_EMAIL)) {
         setUser(firebaseUser)
       } else {
         setUser(null)
@@ -29,7 +30,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const cred = await signInWithEmailAndPassword(auth, email, password)
-    if (!cred.user.emailVerified) {
+    if (!cred.user.emailVerified && cred.user.email !== DEMO_EMAIL) {
       await signOut(auth)
       const error = new Error('Please verify your email before signing in.')
       error.code = 'EMAIL_NOT_VERIFIED'
